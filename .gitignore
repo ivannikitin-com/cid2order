@@ -1,2 +1,5 @@
-# ignore log files and databases
+# ignore log files
 *.log
+
+# ignore debug files
+__test.php

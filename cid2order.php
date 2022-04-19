@@ -26,7 +26,8 @@
 defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 
 /* Глобальные константы плагина */
-define( 'CID2ORDER', 'cid2order' );	// Text Domain
+define( 'CID2ORDER', 'cid2order' );	                          // Text Domain
+define( 'CID2ORDER_DIR', basename( dirname( __FILE__ ) ) );	  // Папка плагина
 
 /* Файлы ядра плагина */
 require_once( 'classes/plugin.php' );

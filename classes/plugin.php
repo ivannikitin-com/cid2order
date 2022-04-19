@@ -17,7 +17,10 @@ class Cid2order_plugin {
      * Используем статичную переменную, так как константы класса не могут быть массивом
      */
     public static $DEFAULTS = array(
-        'cookies'   =>  array( '_ga', '	_ym_uid' )
+        'cookies' => array( '_ga', '_ym_uid' ),
+        'save'    => array(
+            'order_notes'  => true 
+        )
     );
 
 	/**
@@ -39,7 +42,7 @@ class Cid2order_plugin {
 	public function plugins_loaded()
 	{
 		// Локализация
-		load_plugin_textdomain( CID2ORDER, false, basename( dirname( __FILE__ ) ) . '/lang' );
+		load_plugin_textdomain( CID2ORDER, false, CID2ORDER_DIR . '/lang' );
 	}
 	
 	/**
@@ -91,13 +94,24 @@ class Cid2order_plugin {
         // Если по какой-то причине $order_id нет, ничего не делаем
         if ( empty( $order_id ) ) return;
 
+        $cid_str = '';
+
         // Читаем требуемые куки
-        foreach ($this->settings->cookies as $cookie) {
+        foreach ($this->settings[ 'cookies' ] as $cookie) {
             // Если текущего куки нет, переходим к следующему
             if ( !isset( $_COOKIE[ $cookie ] ) || empty( $_COOKIE[ $cookie ]  ) ) continue;
 
+            $value = sanitize_text_field( $_COOKIE[ $cookie ] );
+            $cid_str .= '<br>' . $cookie . ': ' . $value;
+
             // Сохраняем мета-поле
-            update_post_meta( $order_id, $cookie, sanitize_text_field( $_COOKIE[ $cookie ] ) );
+            update_post_meta( $order_id, $cookie, $value );
+        }
+
+         // При необходимости сохраняем данные в заметку к заказу
+        if ( $this->settings[ 'save' ][ 'order_notes' ] && !empty( $cid_str ) ) {
+            $order = new WC_Order( $order_id );
+            $order->add_order_note( __('Client IDs', CID2ORDER ) . $cid_str );
         }
     }
 
@@ -132,7 +146,7 @@ class Cid2order_plugin {
             $column_values = array();
 
             // Читаем требуемые поля -- названия  куки
-            foreach ( $this->settings->cookies as $cookie ) {
+            foreach ( $this->settings[ 'cookies' ] as $cookie ) {
                 $value = get_post_meta( $post_id, $cookie, true );
                 if ( ! empty( $value ) ) {
                     $column_values[] = $cookie . ': ' . $value;
