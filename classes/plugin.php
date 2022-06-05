@@ -18,12 +18,20 @@ class Cid2order_plugin {
         // Настройки плагина
         $this->settings = new Cid2order_settings();
 
-        // Хуки
+        // Хук на загрузку плагина
         add_action( 'plugins_loaded', array( $this, 'plugins_loaded' ) );
-        add_action( 'init', array( $this, 'wp_init' ) );
-        add_action( 'woocommerce_thankyou', array( $this, 'thankyou_page' ) );
-        add_filter( 'manage_edit-shop_order_columns', array( $this, 'custom_shop_order_column' ), 20 );
-        add_action( 'manage_shop_order_posts_custom_column', array( $this, 'custom_orders_list_column_content' ), 20, 2 );
+
+        // Интеграция с WooCommerce
+        if ( $this->settings->get( 'integrations' )[ 'woocommerce' ][ 'enabled' ] ) {
+            add_action( 'woocommerce_thankyou', array( $this, 'thankyou_page' ) );
+            add_filter( 'manage_edit-shop_order_columns', array( $this, 'custom_shop_order_column' ), 20 );
+            add_action( 'manage_shop_order_posts_custom_column', array( $this, 'custom_orders_list_column_content' ), 20, 2 );
+        }
+
+        // Интеграция с ContactForm 7
+        if ( $this->settings->get( 'integrations' )[ 'cf7' ][ 'enabled' ] ) {
+            // TODO: Интеграция с CF7
+        }
     }
 
     /**
@@ -32,18 +40,6 @@ class Cid2order_plugin {
     public function plugins_loaded() {
         // Локализация
         load_plugin_textdomain( CID2ORDER, false, CID2ORDER_DIR . '/lang' );
-    }
-    
-    /**
-     * Хук init
-     */
-    public function wp_init() {
-        // Проверка наличия WC        
-        if ( ! in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) 
-        {
-            add_action( 'admin_notices', array( $this, 'show_notice_no_wc' ) );
-            return;
-        }
     }
 
     /**
@@ -82,7 +78,7 @@ class Cid2order_plugin {
         }
 
          // При необходимости сохраняем данные в заметку к заказу
-        if ( $this->settings->get( 'save' )[ 'order_notes' ] && !empty( $cid_str ) ) {
+        if ( $this->settings->get( 'integrations' )[ 'woocommerce' ][ 'save' ][ 'order_notes' ] && !empty( $cid_str ) ) {
             $order = new WC_Order( $order_id );
             $order->add_order_note( __('Client IDs', CID2ORDER ) . $cid_str );
         }

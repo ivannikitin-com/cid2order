@@ -11,7 +11,7 @@
  * Plugin Name:       cid2order
  * Plugin URI:        https://github.com/ivannikitin-com/cid2order
  * Description:       Плагин для Woocommerce, который сохраняет ClientID Google Analytics, Яндекс.Метрика и других счетчиков в полях заказа и в формах ContactForm 7.
- * Version:           0.2
+ * Version:           0.3
  * Requires at least: 5.9
  * Requires PHP:      7.4
  * Author:            Иван Никитин
@@ -27,7 +27,7 @@ defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
 
 /* Глобальные константы плагина */
 define( 'CID2ORDER', 'cid2order' );	                          // Text Domain
-define( 'CID2ORDER_DIR', basename( dirname( __FILE__ ) ) );	  // Папка плагина
+define( 'CID2ORDER_DIR', dirname( __FILE__ ) );	  // Папка плагина
 
 /* Файлы ядра плагина */
 require_once( 'classes/plugin.php' );
